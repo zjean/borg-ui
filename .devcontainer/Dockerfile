@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y \
     # SSH and network tools
     openssh-client \
     sshfs \
-    fuse \
+    fuse3 \
     rsync \
     sshpass \
     curl \
@@ -51,8 +51,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
 # Install Borg Backup (matching production version)
 RUN pip install --no-cache-dir 'borgbackup>=1.4.3,<1.5.0'
 
-# Configure fuse for non-root users
-RUN sed -i 's/^#user_allow_other/user_allow_other/' /etc/fuse.conf
+# Configure fuse for non-root users (fuse3 config)
+RUN if [ -f /etc/fuse.conf ]; then sed -i 's/^#user_allow_other/user_allow_other/' /etc/fuse.conf; fi
 
 # Create necessary directories
 RUN mkdir -p /data /backups /var/log/borg /etc/borg && \
