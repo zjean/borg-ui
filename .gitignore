@@ -84,6 +84,9 @@ config/secrets.yaml
 *.swo
 *~
 
+# Git worktrees
+.worktrees/
+
 # OS
 .DS_Store
 .DS_Store?
