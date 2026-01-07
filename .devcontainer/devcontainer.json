@@ -1,0 +1,160 @@
+{
+  "name": "Borg Web UI Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+
+  // Features to add to the dev container
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "installOhMyZsh": true,
+      "upgradePackages": true,
+      "username": "vscode",
+      "userUid": "automatic",
+      "userGid": "automatic"
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "ppa": true,
+      "version": "latest"
+    }
+  },
+
+  // Configure tool-specific properties
+  "customizations": {
+    "vscode": {
+      // Extensions to install
+      "extensions": [
+        // Python development
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.black-formatter",
+        "charliermarsh.ruff",
+
+        // Frontend development
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+
+        // Database & Docker
+        "ms-azuretools.vscode-docker",
+        "alexcvzz.vscode-sqlite",
+
+        // Git & Testing
+        "eamodio.gitlens",
+        "hbenl.vscode-test-explorer",
+        "ryanluker.vscode-coverage-gutters"
+      ],
+
+      // VS Code settings
+      "settings": {
+        // Python settings
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.formatting.provider": "none",
+        "python.linting.enabled": false,
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.black-formatter",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          }
+        },
+        "black-formatter.args": [
+          "--line-length=88"
+        ],
+        "ruff.lint.run": "onSave",
+
+        // Python testing
+        "python.testing.pytestEnabled": true,
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestArgs": [
+          "tests"
+        ],
+
+        // JavaScript/TypeScript settings
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+
+        // ESLint
+        "eslint.workingDirectories": [
+          "./frontend"
+        ],
+
+        // Terminal
+        "terminal.integrated.defaultProfile.linux": "zsh",
+
+        // Files
+        "files.watcherExclude": {
+          "**/.git/objects/**": true,
+          "**/.git/subtree-cache/**": true,
+          "**/node_modules/**": true,
+          "**/.pytest_cache/**": true,
+          "**/__pycache__/**": true,
+          "**/venv/**": true,
+          "**/.venv/**": true
+        }
+      }
+    }
+  },
+
+  // Forward ports for development
+  "forwardPorts": [
+    8081,  // Backend API (FastAPI)
+    5173,  // Frontend dev server (Vite)
+    6379   // Redis
+  ],
+
+  // Port attributes
+  "portsAttributes": {
+    "8081": {
+      "label": "Backend API",
+      "onAutoForward": "notify"
+    },
+    "5173": {
+      "label": "Frontend Dev Server",
+      "onAutoForward": "notify"
+    },
+    "6379": {
+      "label": "Redis",
+      "onAutoForward": "silent"
+    }
+  },
+
+  // Run commands after container creation
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally
+  "remoteUser": "vscode",
+
+  // Mount configuration
+  "mounts": [
+    // Persist bash history
+    "source=borg-ui-bashhistory,target=/home/vscode/.bash_history,type=volume",
+    // Persist zsh history
+    "source=borg-ui-zshhistory,target=/home/vscode/.zsh_history,type=volume"
+  ],
+
+  // Set environment variables
+  "remoteEnv": {
+    "PYTHONPATH": "${containerWorkspaceFolder}",
+    "DATA_DIR": "/data",
+    "DATABASE_URL": "sqlite:////data/borg.db",
+    "BORG_BACKUP_PATH": "/backups",
+    "PORT": "8081"
+  }
+}
